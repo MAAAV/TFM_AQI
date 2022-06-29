@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # Restringimos a los dos contaminantes descritos en el TFM, aunque por defecto trataremos siempre el NO2.
     # contaminante = row1_1.radio("pollutant:", ('NO2', 'PM2.5'))
     #contaminante = row1_1.selectbox("contaminant:", pd.DataFrame(AirPollutionData.CONTAMINANTS)) 
-    Contaminante = 'NO2'
+    contaminante = 'NO2'
     
     # A partir de estos datos, obtenemos los datos (JSON) del dataset de dades obertes.
     # En principio nos tiene que devolver un DataFrame con solo una fila. En caso contrario el DataFrame estara vacio.
