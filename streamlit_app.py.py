@@ -137,8 +137,9 @@ if __name__ == '__main__':
     # escogemos la fecha que nos interesa, por defecto el dia de la consulta...
     ymd = row1_1.date_input("one day:")
     # Restringimos a los dos contaminantes descritos en el TFM, aunque por defecto trataremos siempre el NO2.
-    contaminante = row1_1.radio("pollutant:", ('NO2', 'PM2.5'))
+    # contaminante = row1_1.radio("pollutant:", ('NO2', 'PM2.5'))
     #contaminante = row1_1.selectbox("contaminant:", pd.DataFrame(AirPollutionData.CONTAMINANTS)) 
+    Contaminante = 'NO2'
     
     # A partir de estos datos, obtenemos los datos (JSON) del dataset de dades obertes.
     # En principio nos tiene que devolver un DataFrame con solo una fila. En caso contrario el DataFrame estara vacio.
@@ -154,8 +155,10 @@ if __name__ == '__main__':
     
     # calculamos todos los datos del riesgo associado al contaminante:
     risk_data = AirPollutionRisk(contaminante, eoi_code, df)
-
-    row1_1.subheader(f" Air Quality Index:")
+    
+    row1_1.write(" ")
+    row1_1.subheader(f" NO2 Air Quality Index :")
+    #semaforo con risk_data.risk
     row1_1.write(f"LCZ max: {risk_data.lcz_max} >> VUCI: {risk_data.vuci}")
     row1_1.write(f"CVP: {risk_data.cvpi}")
     row1_1.write(f"Scenario: {risk_data.scenario_code} ({risk_data.scenario_name})")
