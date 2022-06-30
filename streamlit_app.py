@@ -98,7 +98,7 @@ class AirPollutionRisk:
         self.vuci = AirPollutionData.get_VUCI(self.lcz_max)
     
         # calculamos el Climate Vulnerable People Index (CVPI):
-        self.cvpi = AirPollutionData.get_CVP(eoi_code, 1)
+        self.cvpi = AirPollutionData.get_CVP(eoi_code, 1) # percentatge de població vulnerable (infants i vells)
 
         # ahora determinamos el VUCI-CVPI escenario
         self.scenario_code, self.scenario_name = AirPollutionData.get_scenario(self.vuci, self.cvpi)
@@ -110,50 +110,59 @@ class AirPollutionRisk:
             self.hazard_value = AirPollutionData.get_hazard_data(contaminante, df)
             
         # self.risk = self.hazard_value x self.scenario_code
+        # vamos a modificar el self.hazard_value segun los valores de self.vuci i self.cvpi.
+        if np.isnan(self.hazard_value):
+            kcolor3 = 0
+        else:
+            fhazard = self.hazard_value * (self.vuci + self.cvpi)/100.0
+            if fhazard < 30:
+                kcolor3 = 1
+            elif fhazard < 40:
+                kcolor3 = 2
+            else:
+                kcolor3 = 3
+            
         # np.nan tiene asociado el color 250_250_250.png
         COLOR3 = {0:"250_250_250.png", 1:"000_200_000.png", 2:"255_255_000.png", 3:"255_000_000.png"}
         CAPTION3 = {0:"No data", 1:"low", 2:"medium", 3:"high"}
-        COLOR7 = {
-            0:"250_250_250.png",
-            1:"000_255_000.png", 2:"000_200_000.png", 
-            3:"255_255_000.png", 4:"255_150_000.png", 5:"255_055_000.png", 
-            6:"255_000_000.png", 7:"150_010_050.png"
-            }
-        CAPTION7 = {0:"No data", 1:"low", 2:"low", 3:"medium", 4:"medium", 5:"medium", 6:"high", 7:"high"}
-        COLOR7TO3 = { 0:0, 1:1, 2:1, 3:2, 4:2, 5:2, 6:3, 7:3 }
-        # RISK_DF7 index=['<20', '20-30', '30-40', '40-50', '50-60', '>60']
-        RISK_MATRIX7 = {
-            'D':  [1,2,3,4,5,5], # poco vulnerable
-            'C2': [2,3,4,5,5,5], # VUCI poco vulnerable, CVP vulnerable
-            'C1': [2,3,4,5,5,5], # VUCI vulnerable, CVP poco vulnerable
-            'B':  [3,4,5,6,6,6], # vulnerable
-            'A2': [3,4,5,6,6,6], # muy vulnerable
-            'A1': [3,4,5,6,6,6]  # extremadamente vulnerable
-            }
-        # obtenemos el valor del COLOR7 definido por RISK_MATRIX7
-        if np.isnan(self.hazard_value):
-            kcolor7 = 0
-        elif self.hazard_value < 20:
-            kcolor7 = RISK_MATRIX7[self.scenario_code][0]
-        elif self.hazard_value < 30:
-            kcolor7 = RISK_MATRIX7[self.scenario_code][1]
-        elif self.hazard_value < 40:
-            kcolor7 = RISK_MATRIX7[self.scenario_code][2]
-        elif self.hazard_value < 50:
-            kcolor7 = RISK_MATRIX7[self.scenario_code][3]
-        elif self.hazard_value < 60:
-            kcolor7 = RISK_MATRIX7[self.scenario_code][4]
-        else:
-            kcolor7 = RISK_MATRIX7[self.scenario_code][5]
-
-        # aplicamos la paleta de 7 colores
-        self.risk = kcolor7
-        self.risk_image = COLOR7[self.risk]
-        self.risk_caption = CAPTION7[self.risk]
         
+        #COLOR7 = { 0:"250_250_250.png", 1:"000_255_000.png", 2:"000_200_000.png", 3:"255_255_000.png", 4:"255_150_000.png", 5:"255_055_000.png", 6:"255_000_000.png", 7:"150_010_050.png" }
+        #CAPTION7 = {0:"No data", 1:"low", 2:"low", 3:"medium", 4:"medium", 5:"medium", 6:"high", 7:"high"}
+        #COLOR7TO3 = { 0:0, 1:1, 2:1, 3:2, 4:2, 5:2, 6:3, 7:3 }
+        # RISK_DF7 index=['<20', '20-30', '30-40', '40-50', '50-60', '>60']
+        #RISK_MATRIX7 = {
+        #    'D':  [1,2,3,4,5,5], # poco vulnerable
+        #    'C2': [2,3,4,5,5,5], # VUCI poco vulnerable, CVP vulnerable
+        #    'C1': [2,3,4,5,5,5], # VUCI vulnerable, CVP poco vulnerable
+        #    'B':  [3,4,5,6,6,6], # vulnerable
+        #    'A2': [3,4,5,6,6,6], # muy vulnerable
+        #    'A1': [3,4,5,6,6,6]  # extremadamente vulnerable
+        #    }
+        # obtenemos el valor del COLOR7 definido por RISK_MATRIX7
+        #if np.isnan(self.hazard_value):
+        #    kcolor7 = 0
+        #elif self.hazard_value < 20:
+        #    kcolor7 = RISK_MATRIX7[self.scenario_code][0]
+        #elif self.hazard_value < 30:
+        #    kcolor7 = RISK_MATRIX7[self.scenario_code][1]
+        #elif self.hazard_value < 40:
+        #    kcolor7 = RISK_MATRIX7[self.scenario_code][2]
+        #elif self.hazard_value < 50:
+        #    kcolor7 = RISK_MATRIX7[self.scenario_code][3]
+        #elif self.hazard_value < 60:
+        #    kcolor7 = RISK_MATRIX7[self.scenario_code][4]
+        #else:
+        #    kcolor7 = RISK_MATRIX7[self.scenario_code][5]
+        # aplicamos la paleta de 7 colores
+        #self.risk = kcolor7
+        #self.risk_image = COLOR7[self.risk]
+        #self.risk_caption = CAPTION7[self.risk]
         # En esta primera version nos interesa solo un semaforo de 3 colores
         # Asi pues nos "machacamos" las variables que habiamos asignado de 7 colores 
-        self.risk = COLOR7TO3[kcolor7]
+        #self.risk = COLOR7TO3[kcolor7]
+        
+        self.risk = kcolor3
+        
         self.risk_image = COLOR3[self.risk]
         self.risk_caption = CAPTION3[self.risk]
 
