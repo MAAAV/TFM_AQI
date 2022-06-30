@@ -128,19 +128,26 @@ def get_scenario(vuci, cvp):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-def get_df_histograma_hores(contaminante, df):
-    # df es el registre que conte els valors horaris del contaminant.
-    # Aixo vol dir que df.shape[0] == 1
-    value_list = [ df[h].iloc[0]  if h in df.columns  else 0.0  for h in dades_obertes.HORES ]
-    return pd.DataFrame(np.array(value_list), columns=[f"{contaminante}"])
-
-
-# ---------------------------------------------------------------------------------------------------------------------
 def get_hazard_data(contaminante, df):
     # df es el registre que conte els valors horaris del contaminant.
     # Aixo vol dir que df.shape[0] == 1
     value_list = [ df[h].iloc[0]  if h in df.columns  else np.nan  for h in dades_obertes.HORES ]
-    return round(np.nanmean(np.array(value_list), dtype=np.float64), 2)
+    return round(np.nanmedian(np.array(value_list)), 2)
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+def get_df_histograma_hores(contaminante, df):
+    # df es el registre que conte els valors horaris del contaminant.
+    # Aixo vol dir que df.shape[0] == 1
+    # calculem el valor mig del contaminant...
+    v_mean = get_hazard_data(contaminante, df)
+
+    # ara creem la informacio que volem plotejar...
+    value_dict = {
+        "mean": [ v_mean if h in df.columns  else 0.0  for h in dades_obertes.HORES ], 
+        f"{contaminante}": [ df[h].iloc[0]  if h in df.columns  else 0.0  for h in dades_obertes.HORES ] 
+        }
+    return pd.DataFrame(value_dict)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
